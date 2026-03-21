@@ -2,7 +2,7 @@ def successStatusDockerImagePush(tag) {
     echo "[SUCCESS] Pushed image with tag: ${tag}"
 }
 
-pipeline {
+node {
     def app
     stage('Clone repository') {
         checkout scm
