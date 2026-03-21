@@ -1,25 +1,38 @@
-def successStatusDockerImagePush(tag) {
-    echo "[SUCCESS] Pushed image with tag: ${tag}"
-}
+def app
 
-node {
-    def app
-    stage('Clone repository') {
-        checkout scm
-    }
-    stage('Build image') {
-       app = docker.build("ddukoski/kiii-jenkins")
-    }
-    stage('Push image') {   
+pipeline {
+    agent any
 
-        def buildTag = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
-        def latestTag = "${env.BRANCH_NAME}-latest"
+    stages {
+        stage('Clone repository') {
+            steps {
+                checkout scm
+            }
+        }
 
-        docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
-            app.push(buildTag)
-            successStatusDockerImagePush(buildTag)
-            app.push(latestTag)
-            successStatusDockerImagePush(latestTag)
+        stage('Build image') {
+            steps {
+                script {
+                    app = docker.build('ddukoski/kiii-jenkins')
+                }
+            }
+        }
+
+        stage('Push image') {
+            steps {
+                script {
+                    def safeBranch = env.BRANCH_NAME.replaceAll('[^a-zA-Z0-9_.-]', '-')
+                    def buildTag = "${safeBranch}-${env.BUILD_NUMBER}"
+                    def latestTag = "${safeBranch}-latest"
+
+                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub') {
+                        app.push(buildTag)
+                        echo "[SUCCESS] Pushed image with tag: ${buildTag}"
+                        app.push(latestTag)
+                        echo "[SUCCESS] Pushed image with tag: ${latestTag}"
+                    }
+                }
+            }
         }
     }
 }
