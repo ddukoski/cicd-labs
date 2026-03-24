@@ -15,4 +15,4 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Run echoing script
-      - run: echo echo-script.bash
+        run: ./echo-script.bash
