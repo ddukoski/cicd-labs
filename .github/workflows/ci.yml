@@ -18,10 +18,8 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Super-Linter
-      uses: super-linter/super-linter@v8.5.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: TruffleHog OSS
+      uses: trufflesecurity/trufflehog@v3.94.2
 
     - name: Run list script
       run: ./list.sh
