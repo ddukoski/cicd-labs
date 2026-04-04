@@ -1,9 +1,20 @@
 pipeline {
   agent any
+  environment {
+    GIT_CREDS = credentials('github_credentials')
+    DOCKER_CREDS = credentials('dockerhub_credentials')
+  }
   stages {
     stage('Clone repository') {
       steps {
-        checkout scm
+        checkout([
+          $class: 'GitSCM',
+          branches: [[name: '*/main']],
+          userRemoteConfigs: [[
+            url: 'https://github.com/ddukoski/cicd-labs.git',
+            credentialsId: env.GIT_CREDS
+          ]]
+        ])
       }
     }
 
@@ -12,7 +23,6 @@ pipeline {
         script {
           app = docker.build('ddukoski/kiii-jenkins')
         }
-
       }
     }
 
@@ -23,14 +33,13 @@ pipeline {
           def buildTag = "${safeBranch}-${env.BUILD_NUMBER}"
           def latestTag = "${safeBranch}-latest"
 
-          docker.withRegistry('https://index.docker.io/v1/', 'dockerhub') {
+          docker.withRegistry('https://index.docker.io/v1/', env.DOCKER_CREDS) {
             app.push(buildTag)
             echo "[SUCCESS] Pushed image with tag: ${buildTag}"
             app.push(latestTag)
             echo "[SUCCESS] Pushed image with tag: ${latestTag}"
           }
         }
-
       }
     }
   }
