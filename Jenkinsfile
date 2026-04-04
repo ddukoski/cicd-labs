@@ -4,13 +4,13 @@ pipeline {
     stage('Clone repository') {
       steps {
         checkout([
-                    $class: 'GitSCM',
-                    branches: [[name: '*/main']],
-                    userRemoteConfigs: [[
-                        url: 'https://github.com/ddukoski/cicd-labs.git',
-                        credentialsId: env.GIT_CREDS
-                      ]]
-                    ])
+                              $class: 'GitSCM',
+                              branches: [[name: '*/main']],
+                              userRemoteConfigs: [[
+                                    url: 'https://github.com/ddukoski/cicd-labs.git',
+                                    credentialsId: env.GIT_CREDS
+                                  ]]
+                                ])
           }
         }
 
