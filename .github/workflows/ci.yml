@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ master, main ]
+    branches: [master, main]
 
 permissions:
   contents: read
@@ -13,14 +13,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: TruffleHog OSS
-      uses: trufflesecurity/trufflehog@v3.94.2
+      - name: TruffleHog OSS
+        uses: trufflesecurity/trufflehog@v3.94.2
 
-    - name: Run list script
-      run: ./list.sh
-    
+      - name: Run list script
+        run: ./list.sh
