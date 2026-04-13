@@ -105,10 +105,10 @@
     <script>
       // Generate floating circles
       for (let i = 0; i < 20; i++) {
-        let circle = document.createElement("div");
+        const circle = document.createElement("div");
         circle.classList.add("circle");
 
-        let size = Math.random() * 20 + 10;
+        const size = Math.random() * 20 + 10;
         circle.style.width = size + "px";
         circle.style.height = size + "px";
         circle.style.left = Math.random() * 100 + "vw";
