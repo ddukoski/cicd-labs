@@ -5,33 +5,26 @@ on:
     branches:
       - master
 
+permissions:
+  contents: read
+
 jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
 
     permissions:
-      # contents permission to clone the repository
       contents: read
-      packages: read
-      # issues and pull-requests permissions to write results as pull
-      # request comments. Omit them if you don't need summary comments
-      issues: write
-      pull-requests: write
-      # To report GitHub Actions status checks. Omit if you don't need
-      # to update commit status
-      statuses: write
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
         with:
-          # super-linter needs the full git history to get the
-          # list of files that changed across commits
           fetch-depth: 0
           persist-credentials: false
-      - name: Super-linter
-        uses: super-linter/super-linter@v8.6.0 # x-release-please-version
+
+      - name: Super-Linter
+        uses: super-linter/super-linter@9e863354e3ff62e0727d37183162c4a88873df41
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -39,21 +32,27 @@ jobs:
     needs: [lint]
     name: Containerize listing script
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    environment: dockerhub
     steps:
+      - name: Checkout code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        with:
+          persist-credentials: false
+
       - name: Login to Docker Hub
-        uses: docker/login-action@v4
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v4
+      - name: Build image
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        run: docker build -t "$DOCKERHUB_USERNAME/listing:latest" .
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-      - name: Build and push
-
-        uses: docker/build-push-action@v7
-        with:
-          push: true
-          tags: ${{secrets.DOCKERHUB_USERNAME}}/listing:latest
+      - name: Push image
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        run: docker push "$DOCKERHUB_USERNAME/listing:latest"
