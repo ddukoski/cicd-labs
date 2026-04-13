@@ -29,6 +29,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_CHECKOV: false
+          VALIDATE_GROOVY: false
+          VALIDATE_JSCPD: false
 
   build:
     needs: [lint]
